@@ -6,13 +6,51 @@ const defaultCartState={
 }
 const cartReducer=(state,action) =>{
     if(action.type == 'ADD'){
-        const updateItem= state.item.concat(action.item)
-        const updateTotalAmount= state.totalAmount+action.item.price * action.item.amount
+        const checkExistingItemIndex=state.item.findIndex((item)=>item.id === action.item.id);
+        const checkExistingitem= state.item[checkExistingItemIndex];
+        let updateItem;
+        let updateItems
 
+        if(checkExistingitem){
+             updateItem={
+                ...checkExistingitem,
+                amount:checkExistingitem.amount+action.item.amount
+            }
+           updateItems=[...state.item];
+           updateItems[checkExistingItemIndex]=updateItem
+        }
+        else{
+            updateItems= state.item.concat(action.item)
+
+        }
+        const updateTotalAmount= state.totalAmount+action.item.price * action.item.amount;
         return {
-            item: updateItem,
+            item: updateItems,
             totalAmount:updateTotalAmount
         }
+    }
+    if(action.type =='REMOVE'){
+        const checkExistingItemIndex=state.item.findIndex((item)=>item.id === action.id);
+        const checkExistingitem= state.item[checkExistingItemIndex];
+        let updateItem;
+        let updateItems
+
+        if(checkExistingitem.amount == 1){
+             updateItems= state.item.filter((item)=> item.id != action.id)
+           
+        }
+        else{
+            updateItem={...checkExistingitem, amount:checkExistingitem.amount-1}
+            updateItems=[...state.item];
+           updateItems[checkExistingItemIndex]=updateItem
+
+        }
+        const updateTotalAmount= state.totalAmount-checkExistingitem.price;
+        return {
+            item: updateItems,
+            totalAmount:updateTotalAmount
+        }
+
     }
     return defaultCartState
 
